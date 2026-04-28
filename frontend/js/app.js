@@ -767,3 +767,106 @@
         init();
     }
 })();
+// ============ 币安K线数据 ============
+const BINANCE_WS = 'wss://stream.binance.com:9443/ws';
+
+let klineSocket = null;
+let currentSymbol = 'btcusdt';
+
+// K线数据缓存
+const klineData = {
+    'btcusdt': [],
+    'ethusdt': [],
+    'bnbusdt': []
+};
+
+// 初始化K线连接
+function initKline(symbol = 'btcusdt') {
+    currentSymbol = symbol;
+    
+    // 关闭旧连接
+    if (klineSocket) {
+        klineSocket.close();
+    }
+    
+    // 连接币安WebSocket
+    const streamName = `${symbol}@kline_1h`;
+    klineSocket = new WebSocket(`${BINANCE_WS}/${streamName}`);
+    
+    klineSocket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.k) {
+            updateKlineChart(data.k);
+        }
+    };
+    
+    klineSocket.onerror = (error) => {
+        console.log('K线连接错误，使用模拟数据');
+        showMockKline(symbol);
+    };
+}
+
+// 更新K线图表
+function updateKlineChart(kline) {
+    const price = parseFloat(kline.c).toFixed(2);
+    const change = ((parseFloat(kline.c) - parseFloat(kline.o)) / parseFloat(kline.o) * 100).toFixed(2);
+    const changeClass = change >= 0 ? '' : 'negative';
+    
+    // 更新UI
+    const chartEl = document.getElementById('klineChart');
+    if (chartEl) {
+        const symbolEl = chartEl.querySelector('.symbol-name');
+        const priceEl = chartEl.querySelector('.symbol-price');
+        const changeEl = chartEl.querySelector('.symbol-change');
+        
+        if (symbolEl) symbolEl.textContent = currentSymbol.toUpperCase().replace('USDT', '/USDT');
+        if (priceEl) priceEl.textContent = parseFloat(price).toLocaleString();
+        if (changeEl) {
+            changeEl.textContent = (change >= 0 ? '+' : '') + change + '%';
+            changeEl.className = 'symbol-change ' + changeClass;
+        }
+    }
+}
+
+// 显示模拟K线（API失败时）
+function showMockKline(symbol) {
+    const prices = {
+        'btcusdt': 67543.21,
+        'ethusdt': 3456.78,
+        'bnbusdt': 567.89
+    };
+    const changes = {
+        'btcusdt': '+2.34%',
+        'ethusdt': '+1.56%',
+        'bnbusdt': '-0.89%'
+    };
+    
+    const chartEl = document.getElementById('klineChart');
+    if (chartEl) {
+        const symbolEl = chartEl.querySelector('.symbol-name');
+        const priceEl = chartEl.querySelector('.symbol-price');
+        const changeEl = chartEl.querySelector('.symbol-change');
+        
+        if (symbolEl) symbolEl.textContent = symbol.toUpperCase().replace('usdt', '/USDT');
+        if (priceEl) priceEl.textContent = prices[symbol] || 0;
+        if (changeEl) {
+            const change = changes[symbol] || '+0%';
+            changeEl.textContent = change;
+            changeEl.className = 'symbol-change ' + (change.startsWith('+') ? '' : 'negative');
+        }
+    }
+}
+
+// 币种选择
+function selectSymbol(symbol) {
+    currentSymbol = symbol;
+    initKline(symbol);
+}
+
+// 支持的币种
+const SUPPORTED_SYMBOLS = ['btcusdt', 'ethusdt', 'bnbusdt', 'solusdt', 'bnbusdt'];
+
+// 页面加载后初始化
+document.addEventListener('DOMContentLoaded', () => {
+    initKline('btcusdt');
+});
