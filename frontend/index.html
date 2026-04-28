@@ -19,14 +19,14 @@
         </header>
 
         <!-- 导航 -->
-        <nav class="nav">
+        <div class="nav-bottom">
             <button class="nav-btn active" data-page="home">首页</button>
             <button class="nav-btn" data-page="predict">参与预测</button>
             <button class="nav-btn" data-page="create">创建预测</button>
             <button class="nav-btn" data-page="ranking">排行榜</button>
             <button class="nav-btn" data-page="node">节点中心</button>
             <button class="nav-btn" data-page="dashboard">我的</button>
-        </nav>
+        </div>
 
         <!-- 首页 -->
         <section id="page-home" class="page active">
@@ -116,7 +116,7 @@
 
                 <!-- 预测列表 -->
                 <h3>选择预测事件</h3>
-                <div id="predictList" class="predict-grid">
+                <div class="category-tabs"><button class="category-tab active" data-category="all">全部</button><button class="category-tab" data-category="crypto"> Crypto</button><button class="category-tab" data-category="sports"> 体育</button><button class="category-tab" data-category="politics"> 政治</button><button class="category-tab" data-category="finance"> 金融</button></div><div id="predictList" class="predict-grid">
                     <div class="loading">加载中...</div>
                 </div>
             </div>

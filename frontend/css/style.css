@@ -752,3 +752,78 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+/* ============ 底部导航 ============ */
+.nav-bottom {
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1a1a2e;
+    padding: 8px 0 20px 0;
+    border-top: 1px solid #333;
+    z-index: 1000;
+}
+
+.nav-bottom .nav-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+    font-size: 11px;
+    border: none;
+    background: transparent;
+    color: #888;
+}
+
+.nav-bottom .nav-btn.active {
+    color: #00d4ff;
+}
+
+.nav-bottom .nav-btn::before {
+    content: '';
+    display: block;
+    margin: 0 auto 4px;
+    font-size: 20px;
+}
+
+.nav-bottom .nav-btn[data-page="home"]::before { content: '🏠'; }
+.nav-bottom .nav-btn[data-page="predict"]::before { content: '📊'; }
+.nav-bottom .nav-btn[data-page="create"]::before { content: '➕'; }
+.nav-bottom .nav-btn[data-page="ranking"]::before { content: '🏆'; }
+.nav-bottom .nav-btn[data-page="node"]::before { content: '💎'; }
+.nav-bottom .nav-btn[data-page="dashboard"]::before { content: '👤'; }
+
+/* 内容底部留白给底部导航 */
+.page {
+    padding-bottom: 100px;
+}
+
+/* ============ 板块选择器 ============ */
+.category-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 12px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.category-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.category-tab {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: #2a2a4a;
+    color: #888;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.category-tab.active {
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    color: #fff;
+}
