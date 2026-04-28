@@ -2,7 +2,7 @@
 // 合约配置
 const contractConfig = {
     testnet: {
-        ShenYu: "0x3817E3f1cb17De35016fEf4F2CB7d197777d57f3",
+        ShenYu: "0xc642107B0efa9013c8B12C880C6163a7c0566c2D",
         USDT: "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
         operateWallet: "0x1A0a3d5fB91120185a795477ed600B9Cd3947732",
         secretWallet: "0x9C156fd416E0368545B999a4CC2CF9444ECF4016",
