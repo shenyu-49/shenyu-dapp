@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神预DApp - AI驱动的链上二元预测</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="logo">🔮 神预DApp</div>
+            <div class="wallet-section">
+                <button id="signBtn" class="btn-sign" style="display:none;">签名登录</button>
+                <span id="walletAddress" class="wallet-address">未连接</span>
+                <button id="connectBtn" class="btn-connect">连接钱包</button>
+            </div>
+        </header>
+
+        <!-- 导航 -->
+        <nav class="nav">
+            <button class="nav-btn active" data-page="home">首页</button>
+            <button class="nav-btn" data-page="predict">参与预测</button>
+            <button class="nav-btn" data-page="create">创建预测</button>
+            <button class="nav-btn" data-page="ranking">排行榜</button>
+            <button class="nav-btn" data-page="node">节点中心</button>
+            <button class="nav-btn" data-page="dashboard">我的</button>
+        </nav>
+
+        <!-- 首页 -->
+        <section id="page-home" class="page active">
+            <div class="hero">
+                <h1>🔮 AI驱动的链上二元预测生态</h1>
+                <p>公平 · 透明 · 高回报</p>
+            </div>
+            
+            <!-- 统计数据 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPool">0</div>
+                    <div class="stat-label">总奖池(USDT)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalUsers">0</div>
+                    <div class="stat-label">参与用户</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="activeRounds">0</div>
+                    <div class="stat-label">进行中预测</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="communityPool">0</div>
+                    <div class="stat-label">福利池(USDT)</div>
+                </div>
+            </div>
+
+            <!-- 进行中的预测 -->
+            <div class="section">
+                <h2>🔥 进行中的预测</h2>
+                <div id="activeRoundsList" class="rounds-list">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+
+            <!-- 最近结果 -->
+            <div class="section">
+                <h2>📊 最近结果</h2>
+                <div id="settledRoundsList" class="rounds-list">
+                    <div class="empty">暂无已结束预测</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 参与预测页面 -->
+        <section id="page-predict" class="page">
+            <div class="section">
+                <h2>参与预测</h2>
+                <div class="round-detail" id="roundDetail">
+                    <div class="round-info">
+                        <h3 id="roundTitle">选择预测事件</h3>
+                        <p class="round-creator">创建者: <span id="roundCreator">-</span></p>
+                        <p class="round-timer">剩余时间: <span id="roundTimer">-</span></p>
+                    </div>
+                    
+                    <div class="bet-section">
+                        <div class="pool-info">
+                            <div class="pool-yes">
+                                <span class="label">YES</span>
+                                <span class="amount" id="yesPool">0 USDT</span>
+                            </div>
+                            <div class="pool-no">
+                                <span class="label">NO</span>
+                                <span class="amount" id="noPool">0 USDT</span>
+                            </div>
+                        </div>
+
+                        <div class="bet-form">
+                            <div class="form-group">
+                                <label>选择方向</label>
+                                <div class="side-buttons">
+                                    <button class="btn-side btn-yes" data-side="YES">YES</button>
+                                    <button class="btn-side btn-no" data-side="NO">NO</button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>投注金额 (USDT)</label>
+                                <input type="number" id="betAmount" placeholder="最低10 USDT" min="10">
+                            </div>
+                            
+                            <button id="betBtn" class="btn-primary" disabled>立即投注</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 预测列表 -->
+                <h3>选择预测事件</h3>
+                <div id="predictList" class="predict-grid">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 创建预测页面 -->
+        <section id="page-create" class="page">
+            <div class="section">
+                <h2>创建预测事件</h2>
+                <div class="create-form">
+                    <div class="form-group">
+                        <label>预测标题</label>
+                        <input type="text" id="createTitle" placeholder="例如: BTC下周突破100000美元?" maxlength="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>最低投注额 (USDT)</label>
+                        <input type="number" id="createMinBet" value="20" min="20">
+                        <small>需抵押 20 USDT 保证金</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>预测时长</label>
+                        <select id="createDuration">
+                            <option value="3600">1小时</option>
+                            <option value="7200">2小时</option>
+                            <option value="14400">4小时</option>
+                            <option value="86400">24小时</option>
+                            <option value="172800">48小时</option>
+                        </select>
+                    </div>
+
+                    <div class="fee-info">
+                        <p>📝 创建者收益: 根据总流水阶梯分成</p>
+                        <ul>
+                            <li>5万以下: 0.5%</li>
+                            <li>5万-20万: 1%</li>
+                            <li>20万以上: 1.5%</li>
+                        </ul>
+                    </div>
+                    
+                    <button id="createBtn" class="btn-primary">创建预测 (抵押20USDT)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 排行榜页面 -->
+        <section id="page-ranking" class="page">
+            <div class="section">
+                <h2>🏆 每日排行榜</h2>
+                <p class="subtitle">前10名瓜分5%福利池</p>
+                
+                <div class="ranking-info">
+                    <div class="ranking-pool">
+                        <span>今日奖池:</span>
+                        <span id="rankingPoolAmount" class="highlight">0 USDT</span>
+                    </div>
+                </div>
+
+                <div class="ranking-list" id="rankingList">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 节点中心页面 -->
+        <section id="page-node" class="page">
+            <div class="section">
+                <h2>⭐ 节点中心</h2>
+                
+                <div class="node-levels">
+                    <div class="node-card genesis">
+                        <div class="node-icon">👑</div>
+                        <div class="node-name">创世节点</div>
+                        <div class="node-requirement">门槛: 10,000 USDT</div>
+                        <div class="node-limit">剩余: <span id="genesisLeft">49</span>/49</div>
+                        <div class="node-reward">分红权重: 3倍</div>
+                    </div>
+                    
+                    <div class="node-card super">
+                        <div class="node-icon">⭐</div>
+                        <div class="node-name">超级节点</div>
+                        <div class="node-requirement">门槛: 3,000 USDT</div>
+                        <div class="node-limit">剩余: <span id="superLeft">300</span>/300</div>
+                        <div class="node-reward">分红权重: 2倍</div>
+                    </div>
+                    
+                    <div class="node-card normal">
+                        <div class="node-icon">🌟</div>
+                        <div class="node-name">普通节点</div>
+                        <div class="node-requirement">门槛: 1,000 USDT</div>
+                        <div class="node-limit">剩余: <span id="normalLeft">600</span>/600</div>
+                        <div class="node-reward">分红权重: 1倍</div>
+                    </div>
+                </div>
+
+                <div class="register-node">
+                    <h3>注册成为节点</h3>
+                    <p>当前累计投注: <span id="userDeposit">0</span> USDT</p>
+                    <button id="registerNodeBtn" class="btn-primary">立即注册</button>
+                </div>
+
+                <div class="node-dividends">
+                    <h3>节点分红</h3>
+                    <button id="claimDividendsBtn" class="btn-secondary">领取节点分红</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 我的仪表盘 -->
+        <section id="page-dashboard" class="page">
+            <div class="section">
+                <h2>👤 我的中心</h2>
+                
+                <div class="user-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="userTotalDeposit">0</div>
+                        <div class="stat-label">累计投注</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="userTeamEarned">0</div>
+                        <div class="stat-label">团队收益</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="userActivePoints">0</div>
+                        <div class="stat-label">活跃度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="userNodeLevel">无</div>
+                        <div class="stat-label">节点等级</div>
+                    </div>
+                </div>
+
+                <div class="activation-status">
+                    <h3>团队激活状态</h3>
+                    <div class="status-item">
+                        <span>今日流水:</span>
+                        <span id="userDailyFlow">0 USDT</span>
+                    </div>
+                    <div class="status-item">
+                        <span>有效直推:</span>
+                        <span id="userDirectReferrals">0 人</span>
+                    </div>
+                    <div class="status-item">
+                        <span>激活状态:</span>
+                        <span id="userActivated" class="status-no">未激活</span>
+                    </div>
+                    <p class="tip">💡 激活条件: 流水≥10U + 直推≥5人</p>
+                </div>
+
+                <div class="my-bets">
+                    <h3>我的投注</h3>
+                    <div id="myBetsList" class="bets-list">
+                        <div class="empty">暂无投注记录</div>
+                    </div>
+                </div>
+
+                <div class="team-section">
+                    <h3>我的团队</h3>
+                    <div class="invite-link">
+                        <label>邀请链接:</label>
+                        <div class="link-box">
+                            <input type="text" id="inviteLink" readonly>
+                            <button id="copyLinkBtn" class="btn-small">复制</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 底部提示 -->
+        <footer class="footer">
+            <p>⚠️ 预测有风险，投资需谨慎</p>
+            <p>合约地址: <span id="contractAddress" class="contract-address">0x3817E3f1cb17De35016fEf4F2CB7d197777d57f3</span></p>
+        </footer>
+    </div>
+
+    <!-- 消息提示 -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/abi.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

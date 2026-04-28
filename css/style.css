@@ -1,0 +1,754 @@
+/* ============ 全局样式 ============ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --yes-color: #22c55e;
+    --no-color: #ef4444;
+    --bg-dark: #0f172a;
+    --bg-card: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+/* ============ 头部 ============ */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    background: var(--bg-dark);
+    z-index: 100;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.wallet-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.wallet-address {
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.btn-connect {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-connect:hover {
+    background: var(--primary-dark);
+}
+
+/* ============ 导航 ============ */
+.nav {
+    display: flex;
+    gap: 8px;
+    padding: 16px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.nav::-webkit-scrollbar {
+    display: none;
+}
+
+.nav-btn {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.nav-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.nav-btn:hover:not(.active) {
+    background: var(--border-color);
+}
+
+/* ============ 页面 ============ */
+.page {
+    display: none;
+    padding: 20px 0;
+}
+
+.page.active {
+    display: block;
+}
+
+/* ============ 首页 ============ */
+.hero {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.hero h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+/* 统计卡片 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* 区块标题 */
+.section {
+    margin: 30px 0;
+}
+
+.section h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section h3 {
+    font-size: 18px;
+    margin: 20px 0 12px;
+}
+
+/* 预测列表 */
+.rounds-list, .predict-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.round-card, .predict-card {
+    background: var(--bg-card);
+    padding: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.round-card:hover, .predict-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.round-card.active {
+    border-color: var(--primary);
+}
+
+.round-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.round-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.round-pool {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.pool-yes, .pool-no {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.pool-yes {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--yes-color);
+}
+
+.pool-no {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--no-color);
+}
+
+/* ============ 预测详情 ============ */
+.round-detail {
+    background: var(--bg-card);
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.round-info h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.round-creator, .round-timer {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 4px 0;
+}
+
+/* 投注区 */
+.bet-section {
+    margin-top: 24px;
+}
+
+.pool-info {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.pool-yes, .pool-no {
+    flex: 1;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.pool-yes {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+}
+
+.pool-no {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+}
+
+.pool-info .label {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.pool-info .amount {
+    display: block;
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* 表单 */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+/* 方向选择 */
+.side-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-side {
+    flex: 1;
+    padding: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--text-primary);
+}
+
+.btn-side.selected.btn-yes {
+    border-color: var(--yes-color);
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--yes-color);
+}
+
+.btn-side.selected.btn-no {
+    border-color: var(--no-color);
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--no-color);
+}
+
+/* 按钮 */
+.btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--primary-dark);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    padding: 12px 24px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    border-color: var(--primary);
+}
+
+.btn-small {
+    padding: 8px 16px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* ============ 创建预测 ============ */
+.create-form {
+    background: var(--bg-card);
+    padding: 24px;
+    border-radius: 12px;
+}
+
+.fee-info {
+    background: var(--bg-dark);
+    padding: 16px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.fee-info p {
+    color: var(--warning);
+    margin-bottom: 8px;
+}
+
+.fee-info ul {
+    color: var(--text-secondary);
+    padding-left: 20px;
+    font-size: 14px;
+}
+
+/* ============ 排行榜 ============ */
+.subtitle {
+    color: var(--text-secondary);
+    margin-top: -8px;
+    margin-bottom: 16px;
+}
+
+.ranking-info {
+    background: var(--bg-card);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.ranking-pool {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+}
+
+.ranking-pool .highlight {
+    color: var(--warning);
+    font-weight: bold;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg-card);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.ranking-rank {
+    font-size: 20px;
+    font-weight: bold;
+    width: 40px;
+    text-align: center;
+}
+
+.ranking-rank.gold { color: #ffd700; }
+.ranking-rank.silver { color: #c0c0c0; }
+.ranking-rank.bronze { color: #cd7f32; }
+
+.ranking-address {
+    flex: 1;
+    font-family: monospace;
+    color: var(--text-secondary);
+}
+
+.ranking-points {
+    font-weight: bold;
+    color: var(--primary);
+}
+
+/* ============ 节点中心 ============ */
+.node-levels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.node-card {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid transparent;
+}
+
+.node-card.genesis { border-color: #ffd700; }
+.node-card.super { border-color: #c0c0c0; }
+.node-card.normal { border-color: #cd7f32; }
+
+.node-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.node-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.node-requirement {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.node-limit {
+    color: var(--warning);
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.node-reward {
+    color: var(--success);
+    font-size: 14px;
+}
+
+.register-node, .node-dividends {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.register-node p {
+    margin: 12px 0;
+    color: var(--text-secondary);
+}
+
+.register-node .highlight {
+    color: var(--primary);
+    font-weight: bold;
+}
+
+/* ============ 我的中心 ============ */
+.user-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.activation-status {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.status-item:last-child {
+    border-bottom: none;
+}
+
+.status-yes {
+    color: var(--success);
+}
+
+.status-no {
+    color: var(--danger);
+}
+
+.tip {
+    margin-top: 12px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+/* 投注记录 */
+.bets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bet-item {
+    background: var(--bg-card);
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bet-side {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.bet-side.yes {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--yes-color);
+}
+
+.bet-side.no {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--no-color);
+}
+
+.bet-amount {
+    color: var(--text-secondary);
+}
+
+.bet-status {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.bet-status.claimed {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+.bet-status.pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+}
+
+/* 邀请链接 */
+.invite-link {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.invite-link label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.link-box {
+    display: flex;
+    gap: 8px;
+}
+
+.link-box input {
+    flex: 1;
+    padding: 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-family: monospace;
+    font-size: 12px;
+}
+
+/* ============ 底部 ============ */
+.footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 40px;
+}
+
+.contract-address {
+    font-family: monospace;
+    font-size: 10px;
+    color: var(--primary);
+}
+
+/* ============ 提示消息 ============ */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 1000;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast.success { border-left: 4px solid var(--success); }
+.toast.error { border-left: 4px solid var(--danger); }
+.toast.warning { border-left: 4px solid var(--warning); }
+
+/* ============ 加载和空状态 ============ */
+.loading, .empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+}
+
+/* ============ 响应式 ============ */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .node-levels {
+        grid-template-columns: 1fr;
+    }
+    
+    .pool-info {
+        flex-direction: column;
+    }
+    
+    .user-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

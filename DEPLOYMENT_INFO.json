@@ -1,0 +1,9 @@
+{
+  "network": "bnbt",
+  "chainId": 97,
+  "deployer": "0x6ede45D0df56BBEb8eb6eB2F90dDdDCD56Aa2463",
+  "contractAddress": "0x575FE036561B56658484663f6927984f3C6a3704",
+  "usdtAddress": "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
+  "timestamp": "2026-04-27T17:26:36.603Z",
+  "blockNumber": null
+}
