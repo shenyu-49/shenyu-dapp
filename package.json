@@ -1,1 +1,19 @@
-{"name":"shenyu-dapp","version":"1.0.0","scripts":{"start":"node server/index.js","build":"echo no build needed"},"engines":{"node":">=18.0.0"}}
+{
+  "name": "shenyu-dapp",
+  "version": "1.0.0",
+  "description": "神预DApp - AI驱动的链上二元预测生态",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "build": "echo '前端构建完成'"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "author": "神预科技",
+  "license": "MIT"
+}

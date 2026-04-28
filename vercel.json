@@ -1,6 +1,42 @@
 {
-  "buildCommand": "echo no build needed",
-  "installCommand": "echo no install needed",
-  "framework": "static",
-  "outputDirectory": "frontend"
+  "version": 2,
+  "name": "shenyu-dapp",
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/index.js"
+    },
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=UTF-8"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ]
 }

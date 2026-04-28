@@ -1,166 +1,105 @@
-# 🔮 神预DApp - AI驱动的链上二元预测生态
+# 神预DApp - AI驱动的链上二元预测生态
 
-> 完整的前后端代码 + 智能合约
+一个基于Binance Smart Chain的链上二元预测平台，结合AI分析功能。
 
-## 📁 项目结构
+## 功能特点
 
-```
-shenyu-dapp-frontend/
-├── contracts/           # 智能合约源码
-│   └── ShenYuFullDApp_Complete.sol
-├── frontend/            # 前端页面
-│   ├── index.html       # 主页面
-│   ├── css/style.css    # 样式文件
-│   └── js/
-│       ├── abi.js       # 合约ABI配置
-│       └── app.js       # 前端逻辑
-├── server/              # 后端服务
-│   └── index.js
-├── scripts/             # 部署脚本
-│   └── deploy.js
-├── hardhat.config.js    # Hardhat配置
-├── package.json
-└── README.md
-```
+- **智能合约预测**: 基于BSC链上的智能合约进行预测
+- **AI预测助手**: 提供AI分析和建议
+- **节点分红机制**: 创世、超级、普通三档节点
+- **活跃度补贴**: 亏损用户获得活跃度补贴
+- **社区分红**: 7级无限代团队分红体系
+- **实时K线**: 对接币安实时数据
 
-## 🚀 快速开始
+## 部署方式
 
-### 1. 安装依赖
+### 本地运行
 
 ```bash
-cd shenyu-dapp-frontend
 npm install
-```
-
-### 2. 配置环境
-
-```bash
-# 复制环境变量文件
-cp .env.example .env
-
-# 编辑 .env 文件，填入你的私钥
-vi .env
-```
-
-### 3. 部署智能合约
-
-```bash
-# 部署到BSC测试网
-npx hardhat run scripts/deploy.js --network bscTestnet
-
-# 部署到BSC主网
-npx hardhat run scripts/deploy.js --network bsc
-```
-
-### 4. 启动前端
-
-```bash
-# 方式1: 直接用浏览器打开
-# 编辑 js/abi.js 中的合约地址，然后打开 frontend/index.html
-
-# 方式2: 启动本地服务器
 npm start
-# 访问 http://localhost:3000
 ```
 
-## 📋 功能清单
+访问：http://localhost:3000
 
-### ✅ 智能合约功能
+### Vercel部署
 
-| 功能 | 说明 |
-|------|------|
-| 钱包直接支付 | 直接从钱包扣USDT，无需充值 |
-| 创建预测 | 抵押20USDT创建预测事件 |
-| 投注 | 支持YES/NO二元预测 |
-| 自动结算 | 结算后自动分配奖金 |
-| 7级团队分红 | 50%/25%/12%/6%/3%/1%/1% |
-| 节点系统 | 创世/超级/普通三级节点 |
-| 活跃度体系 | 1U=1.5活跃度，领福利消耗1点 |
-| 每日排行榜 | 前10名瓜分5%福利池 |
-| 节点分红 | 70%静态+30%动态分配 |
-| 烧伤机制 | 超额分红转入私密钱包 |
+自动部署到Vercel平台，生成https://shenyu-dapp.vercel.app
 
-### ✅ 前端功能
+## 技术架构
 
-| 页面 | 功能 |
-|------|------|
-| 首页 | 统计面板/进行中预测/最近结果 |
-| 参与预测 | 选择预测/投注YES或NO |
-| 创建预测 | 创建新预测事件 |
-| 排行榜 | 每日排名/奖励分配 |
-| 节点中心 | 节点注册/分红领取 |
-| 我的 | 用户信息/团队收益/邀请链接 |
+### 前端
+- HTML/CSS/JavaScript
+- Web3.js钱包连接
+- 实时数据展示
 
-## 🔧 配置说明
+### 后端
+- Express服务器
+- API接口
+- 模拟数据服务
 
-### 网络配置 (js/abi.js)
+### 智能合约
+- BSC测试网合约地址：0x3817E3f1cb17De35016fEf4F2CB7d197777d57f3
+- BSC主网USDT地址：0x55d398326f99059ff775485246999027b3197955
 
-```javascript
-const CONTRACT_CONFIG = {
-    97: {  // BSC测试网
-        shenyuContract: "0x你的合约地址",
-        usdtContract: "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
-    },
-    56: {  // BSC主网
-        shenyuContract: "0x你的合约地址",
-        usdtContract: "0x55d398326f99059fF775485246999027B3197955"
-    }
-};
-```
+## 经济模型
 
-### 合约参数
+### 资金分配
+- 79% - 赢家池
+- 15% - 社区福利池
+- 5% - 平台运营
+- 1% - 节点池
 
-| 参数 | 值 | 说明 |
-|------|-----|------|
-| WINNER_SHARE | 79% | 赢家池比例 |
-| COMMUNITY_SHARE | 15% | 社区福利池 |
-| OPERATE_SHARE | 5% | 运营池 |
-| NODE_SHARE | 1% | 节点池 |
-| GENESIS_NODE_MIN | 10000 USDT | 创世节点门槛 |
-| SUPER_NODE_MIN | 3000 USDT | 超级节点门槛 |
-| NORMAL_NODE_MIN | 1000 USDT | 普通节点门槛 |
-| ACTIVATION_FLOW | 10 USDT | 激活流水要求 |
-| ACTIVATION_DIRECT | 5人 | 激活直推要求 |
+### 活跃度体系
+- 亏损用户获得活跃度补贴（1 USDT = 1.5活跃度）
+- 活跃度用于领取福利池分红
 
-## 📖 使用流程
+### 团队分红
+- 7级无限代分红
+- 激活条件：个人流水≥10 USDT + 直推5个有效会员
 
-### 用户操作流程
+### 节点治理
+- 创世节点：10,000 USDT（49个名额）
+- 超级节点：3,000 USDT（300个名额）
+- 普通节点：1,000 USDT（600个名额）
 
-1. **连接钱包** - 点击"连接钱包"按钮
-2. **注册** - 绑定邀请人（可选）
-3. **参与预测** - 选择预测事件，投注YES或NO
-4. **等待结算** - 预测结束后结算
-5. **领取奖励** - 赢家领取奖金
-6. **团队分红** - 7级上级获得分红
+## API接口
 
-### 创建预测流程
+### 配置接口
+`GET /api/contract/config`
 
-1. 进入"创建预测"页面
-2. 输入预测标题
-3. 设置最低投注额（默认20USDT抵押）
-4. 选择预测时长
-5. 确认创建（抵押20USDT）
-6. 等待用户参与
-7. 结算后获得创建者分成
+### 价格接口
+`GET /api/binance/price/:coin`
 
-### 节点注册流程
+### 事件接口
+`GET /api/events/active`
 
-1. 累计投注达到门槛
-2. 进入"节点中心"
-3. 点击"立即注册"
-4. 享受节点分红权益
+### 排行榜接口
+`GET /api/leaderboard/top10`
 
-## 🔐 安全注意事项
+### 用户接口
+`GET /api/user/:address`
 
-1. **私钥安全** - 不要将私钥提交到Git
-2. **合约审计** - 正式部署前建议找专业审计
-3. **测试网验证** - 先在测试网充分测试
-4. **权限控制** - onlyOwner函数谨慎使用
+### 池接口
+`GET /api/pools`
 
-## 📞 支持
+### 节点数据接口
+`GET /api/nodes/stats`
 
-如有问题，请在群里联系开发团队。
+### 活跃度接口
+`GET /api/activity/global`
 
-## 📄 许可证
+### 补贴接口
+`GET /api/rewards/daily`
 
-MIT
+## 使用说明
+
+1. 连接钱包（支持MetaMask）
+2. 选择预测板块和币种
+3. 查看实时K线数据
+4. 输入金额选择YES/NO投注
+5. 查看投注历史和收益
+
+## 联系方式
+
+如有问题，请联系技术支持。

@@ -1,1 +1,16 @@
+# Node.js
 node_modules/
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.development
+.env.production
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
