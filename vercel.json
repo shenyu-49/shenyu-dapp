@@ -1,13 +1,6 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "server/index.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/server/index.js" },
-    { "src": "/(.*)", "dest": "/server/index.js" }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "buildCommand": "echo no build needed",
+  "installCommand": "echo no install needed",
+  "framework": "static",
+  "outputDirectory": "frontend"
 }
