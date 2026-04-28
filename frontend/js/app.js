@@ -9,6 +9,7 @@ let priceSocket = null;
 document.addEventListener('DOMContentLoaded', () => {
     // 立即显示模拟数据
     showMockData();
+    tryConnectRealTime();
     
     initNav();
     initCategoryTabs();
@@ -163,6 +164,7 @@ function initNav() {
             
             if (page === 'predict') {
                 showMockData();
+    tryConnectRealTime();
                 setTimeout(() => tryConnectRealTime(), 1000);
             }
         });
@@ -188,6 +190,7 @@ function initSymbolSelect() {
             item.classList.add('active');
             currentSymbol = item.dataset.symbol;
             showMockData();
+    tryConnectRealTime();
         });
     });
 }
@@ -213,6 +216,7 @@ function updateSymbolList() {
                 item.classList.add('active');
                 currentSymbol = item.dataset.symbol;
                 showMockData();
+    tryConnectRealTime();
             });
         });
     }
