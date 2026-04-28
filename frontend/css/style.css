@@ -827,3 +827,338 @@ body {
     background: linear-gradient(135deg, #00d4ff, #0099cc);
     color: #fff;
 }
+
+/* ============ 优化布局 ============ */
+
+/* 头部优化 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #00d4ff, #00ff88);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.wallet-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-connect {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 20px;
+}
+
+/* 统计卡片优化 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.stat-card {
+    background: linear-gradient(145deg, #1e1e3a, #252550);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid rgba(0, 212, 255, 0.1);
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00d4ff;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* 预测卡片优化 */
+.rounds-list, .predict-grid {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.round-card, .predict-card {
+    background: linear-gradient(145deg, #1e1e3a, #252550);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.round-card:active, .predict-card:active {
+    transform: scale(0.98);
+    border-color: #00d4ff;
+}
+
+.round-title, .predict-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.round-info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
+}
+
+/* 板块标签优化 */
+.category-tabs {
+    display: flex;
+    gap: 10px;
+    padding: 12px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.category-tab {
+    flex-shrink: 0;
+    padding: 10px 20px;
+    border-radius: 25px;
+    background: #252550;
+    color: #aaa;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.category-tab.active {
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+}
+
+/* 表单优化 */
+.form-group {
+    margin: 16px 0;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 8px;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #1e1e3a;
+    border: 1px solid #333;
+    color: #fff;
+    font-size: 15px;
+}
+
+.form-group input:focus, .form-group select:focus {
+    border-color: #00d4ff;
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
+/* 按钮优化 */
+.btn-primary {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* 选择方向按钮 */
+.side-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-side {
+    flex: 1;
+    padding: 20px;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid #333;
+    background: #1e1e3a;
+    color: #888;
+    cursor: pointer;
+}
+
+.btn-side.btn-yes.active {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+    color: #00ff88;
+}
+
+.btn-side.btn-no.active {
+    border-color: #ff4757;
+    background: rgba(255, 71, 87, 0.1);
+    color: #ff4757;
+}
+
+/* 池子信息 */
+.pool-info {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.pool-yes, .pool-no {
+    flex: 1;
+    padding: 20px;
+    border-radius: 14px;
+    text-align: center;
+}
+
+.pool-yes {
+    background: linear-gradient(145deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+    border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.pool-no {
+    background: linear-gradient(145deg, rgba(255, 71, 87, 0.1), rgba(255, 71, 87, 0.05));
+    border: 1px solid rgba(255, 71, 87, 0.3);
+}
+
+.pool-yes .label, .pool-no .label {
+    display: block;
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.pool-yes .amount, .pool-no .amount {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.pool-yes .amount { color: #00ff88; }
+.pool-no .amount { color: #ff4757; }
+
+/* 节点卡片优化 */
+.node-levels {
+    display: grid;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.node-card {
+    background: linear-gradient(145deg, #1e1e3a, #252550);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.node-icon {
+    font-size: 32px;
+}
+
+.node-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.node-requirement {
+    font-size: 13px;
+    color: #888;
+}
+
+.node-limit {
+    font-size: 12px;
+    color: #666;
+}
+
+.node-reward {
+    font-size: 14px;
+    color: #00d4ff;
+    margin-left: auto;
+}
+
+/* 底部导航优化 */
+.nav-bottom {
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    padding: 10px 0 24px 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.nav-bottom .nav-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+    border: none;
+    background: transparent;
+    color: #666;
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.nav-bottom .nav-btn.active {
+    color: #00d4ff;
+}
+
+.nav-bottom .nav-btn::before {
+    font-size: 22px;
+}
+
+/* 页脚优化 */
+.footer {
+    text-align: center;
+    padding: 20px 16px 120px;
+    font-size: 11px;
+    color: #555;
+}
+
+.contract-address {
+    font-size: 10px;
+    word-break: break-all;
+}
