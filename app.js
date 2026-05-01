@@ -27,6 +27,96 @@ let usdtContract;
 let userAddress = '';
 let connected = false;
 
+// 资金池数据
+let poolData = {
+    welfarePool: 1000000,      // 福利池
+    nodePool: 500000,         // 节点福利池
+    totalBets: 0,            // 总投注
+    yesBets: 0,              // YES投注总额
+    noBets: 0,               // NO投注总额
+    todayBets: 0,           // 今日投注次数
+    userBets: {},            // 用户投注记录
+    settlements: []           // 结算记录
+};
+
+// 初始化
+function initApp() {
+    loadPoolData();
+    updatePoolDisplay();
+    
+    // 设置默认选择
+    selectCategory('crypto');
+    selectCoin('BTC');
+    setPeriod('1m');
+    selectBetType('YES');
+    
+    // 检查是否已连接钱包
+    if (window.ethereum && window.ethereum.selectedAddress) {
+        userAddress = window.ethereum.selectedAddress;
+        connected = true;
+        document.querySelector('.connect-btn').textContent = '已连接钱包';
+        fetchWalletBalance();
+    }
+    
+    // 模拟实时更新资金池
+    setInterval(() => {
+        simulatePoolChanges();
+    }, 30000);
+}
+
+// 加载资金池数据
+function loadPoolData() {
+    const saved = localStorage.getItem('shenyuPoolData');
+    if (saved) {
+        poolData = JSON.parse(saved);
+    }
+}
+
+// 保存资金池数据
+function savePoolData() {
+    localStorage.setItem('shenyuPoolData', JSON.stringify(poolData));
+}
+
+// 更新资金池显示
+function updatePoolDisplay() {
+    const elements = {
+        'homePool': poolData.welfarePool.toLocaleString(),
+        'homeNodePool': poolData.nodePool.toLocaleString(),
+        'homeTodayBets': poolData.todayBets.toString(),
+        'totalBets': poolData.totalBets.toLocaleString(),
+        'yesBets': poolData.yesBets.toLocaleString(),
+        'noBets': poolData.noBets.toLocaleString()
+    };
+    
+    for (const [id, value] of Object.entries(elements)) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
+}
+
+// 模拟资金池变化
+function simulatePoolChanges() {
+    // 随机增加一些投注模拟活跃度
+    if (Math.random() > 0.7) {
+        const bet = Math.floor(Math.random() * 100) + 10;
+        poolData.todayBets += 1;
+        poolData.totalBets += bet;
+        
+        if (Math.random() > 0.5) {
+            poolData.yesBets += bet;
+        } else {
+            poolData.noBets += bet;
+        }
+        
+        // 福利池滚动增长
+        poolData.welfarePool += bet * 0.05;
+        poolData.nodePool += bet * 0.02;
+        
+        savePoolData();
+        updatePoolDisplay();
+    }
+}
+
 // 页面切换
 function switchSection(section) {
     // 隐藏所有section
@@ -109,7 +199,7 @@ function selectBetType(type) {
 
 // 提交投注
 function submitBet() {
-    const amount = document.querySelector('.bet-input').value;
+    const amount = parseFloat(document.querySelector('.bet-input').value);
     const type = document.querySelector('.bet-btn-yes').style.backgroundColor === '#00c853' ? 'YES' : 'NO';
     
     if (!connected) {
@@ -118,15 +208,130 @@ function submitBet() {
     }
     
     if (!amount || amount < 10) {
-        alert('请输入大于等于10 USDT的金额！');
+        alert('最低投注10 USDT！');
         return;
     }
     
-    // 模拟投注逻辑
-    alert(`已提交投注：${amount} USDT，类型：${type}`);
+    if (amount > 10000) {
+        alert('单次最高投注10000 USDT！');
+        return;
+    }
     
-    // 添加到个人记录
-    addPersonalHistory('BTC/USDT', amount, type);
+    // 投注逻辑
+    const betRecord = {
+        id: Date.now(),
+        coin: document.querySelector('.coin-info h3')?.textContent || 'BTC/USDT',
+        amount: amount,
+        type: type,
+        time: new Date().toLocaleString(),
+        status: '进行中',
+        result: null,
+        payout: 0
+    };
+    
+    // 更新奖池
+    poolData.totalBets += amount;
+    poolData.todayBets += 1;
+    
+    if (type === 'YES') {
+        poolData.yesBets += amount;
+    } else {
+        poolData.noBets += amount;
+    }
+    
+    // 资金分配
+    const platformFee = amount * 0.03;    // 3% 平台费
+    const welfarePool = amount * 0.05;      // 5% 福利池
+    const nodePool = amount * 0.02;         // 2% 节点池
+    const prizePool = amount * 0.90;       // 90% 奖金池
+    
+    poolData.welfarePool += welfarePool;
+    poolData.nodePool += nodePool;
+    
+    // 保存用户投注
+    if (!poolData.userBets[userAddress]) {
+        poolData.userBets[userAddress] = [];
+    }
+    poolData.userBets[userAddress].push(betRecord);
+    
+    savePoolData();
+    updatePoolDisplay();
+    
+    // 显示投注结果
+    alert(`✅ 投注成功！
+    
+币种: ${betRecord.coin}
+金额: ${amount} USDT
+类型: ${type === 'YES' ? '📈 上涨' : '📉 下跌'}
+
+💰 资金分配：
+平台费: ${platformFee.toFixed(2)} USDT
+福利池: ${welfarePool.toFixed(2)} USDT
+节点池: ${nodePool.toFixed(2)} USDT
+奖金池: ${prizePool.toFixed(2)} USDT
+
+⏰ 等待结算...`);
+    
+    // 添加到历史记录
+    addPersonalHistory(betRecord);
+    
+    // 模拟结算（1-5分钟后自动结算）
+    scheduleSettlement(betRecord, type);
+}
+
+// 模拟结算
+function scheduleSettlement(betRecord, type) {
+    const delay = Math.random() * 240000 + 60000; // 1-5分钟
+    
+    setTimeout(() => {
+        // 模拟价格波动结果
+        const priceChange = (Math.random() - 0.5) * 0.1; // -5% 到 +5%
+        const isWin = (type === 'YES' && priceChange > 0) || (type === 'NO' && priceChange < 0);
+        
+        betRecord.status = isWin ? '已中奖' : '未中奖';
+        betRecord.result = (priceChange * 100).toFixed(2) + '%';
+        
+        if (isWin) {
+            // 获胜赔付 1.95倍（赔率）
+            betRecord.payout = betRecord.amount * 1.95;
+            poolData.welfarePool -= betRecord.payout - betRecord.amount;
+        } else {
+            // 投注金额进入奖金池
+        }
+        
+        savePoolData();
+        updatePoolDisplay();
+        
+        // 通知用户
+        if (userAddress && poolData.userBets[userAddress]) {
+            const latestBet = poolData.userBets[userAddress].find(b => b.id === betRecord.id);
+            if (latestBet) {
+                alert(`🎉 结算通知！
+
+${betRecord.coin} 走势: ${betRecord.result}
+你的投注: ${type}
+结果: ${isWin ? '✅ 中奖' : '❌ 未中'}
+${isWin ? `💰 获得赔付: ${betRecord.payout.toFixed(2)} USDT` : ''}`);
+            }
+        }
+    }, delay);
+}
+
+// 添加到个人历史
+function addPersonalHistory(betRecord) {
+    const historySection = document.querySelector('.personal-history-list');
+    if (!historySection) return;
+    
+    const recordHtml = `
+        <div class="history-item">
+            <div class="history-coin">${betRecord.coin}</div>
+            <div class="history-amount">${betRecord.amount} USDT</div>
+            <div class="history-type ${betRecord.type}">${betRecord.type}</div>
+            <div class="history-result">${betRecord.status}</div>
+        </div>
+    `;
+    
+    historySection.insertAdjacentHTML('afterbegin', recordHtml);
 }
 
 // 连接钱包
