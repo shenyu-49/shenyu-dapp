@@ -131,14 +131,36 @@ function submitBet() {
 
 // 连接钱包
 async function connectWallet() {
-    if (!window.ethereum) {
-        alert('请安装MetaMask钱包！');
+    // 检查可用的钱包提供商
+    const walletProviders = [
+        { name: 'MetaMask', id: 'metamask', check: () => window.ethereum?.isMetaMask },
+        { name: 'Binance Wallet', id: 'binance', check: () => window.BinanceChain },
+        { name: 'Trust Wallet', id: 'trust', check: () => window.ethereum?.isTrust },
+        { name: 'Coinbase Wallet', id: 'coinbase', check: () => window.ethereum?.isCoinbaseWallet },
+        { name: 'OKX Wallet', id: 'okx', check: () => window.ethereum?.isOKXWallet }
+    ];
+    
+    // 优先使用已连接的钱包
+    if (window.ethereum && window.ethereum.selectedAddress) {
+        await connectToProvider(window.ethereum);
         return;
     }
     
+    // 尝试找到可用的钱包
+    for (const wallet of walletProviders) {
+        if (wallet.check()) {
+            await connectToProvider(window.ethereum);
+            return;
+        }
+    }
+    
+    // 如果没有安装任何钱包，显示钱包选择提示
+    showWalletOptions();
+}
+
+async function connectToProvider(ethereum) {
     try {
-        // 请求连接账户
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
         userAddress = accounts[0];
         connected = true;
         
@@ -146,14 +168,47 @@ async function connectWallet() {
         document.querySelector('.connect-btn').textContent = '已连接钱包';
         document.querySelector('.wallet-amount').textContent = '获取余额...';
         
-        // 获取余额
         fetchWalletBalance();
         
-        // 显示成功消息
-        alert('钱包连接成功！');
+        // 监听账户变化
+        ethereum.on('accountsChanged', (accounts) => {
+            if (accounts.length === 0) {
+                disconnectWallet();
+            } else {
+                userAddress = accounts[0];
+                fetchWalletBalance();
+            }
+        });
+        
     } catch (error) {
         alert('钱包连接失败：' + error.message);
     }
+}
+
+function showWalletOptions() {
+    const walletList = `
+        <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;">
+            <div style="background:#1a1e2d;padding:30px;border-radius:15px;max-width:320px;width:90%;">
+                <h3 style="margin:0 0 20px;color:#fff;text-align:center;">选择钱包连接</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <a href="https://metamask.io/download/" target="_blank" style="background:#f6851b;color:#fff;padding:15px;border-radius:10px;text-decoration:none;text-align:center;font-weight:bold;">🦊 MetaMask</a>
+                    <a href="https://www.binance.com/en/web3/wallet" target="_blank" style="background:#f0b90b;color:#000;padding:15px;border-radius:10px;text-decoration:none;text-align:center;font-weight:bold;">🔶 Binance Wallet</a>
+                    <a href="https://trustwallet.com/download/" target="_blank" style="background:#3375bb;color:#fff;padding:15px;border-radius:10px;text-decoration:none;text-align:center;font-weight:bold;">🔷 Trust Wallet</a>
+                    <a href="https://www.coinbase.com/wallet" target="_blank" style="background:#0052ff;color:#fff;padding:15px;border-radius:10px;text-decoration:none;text-align:center;font-weight:bold;">💰 Coinbase Wallet</a>
+                    <a href="https://www.okx.com/web3" target="_blank" style="background:#000;color:#fff;padding:15px;border-radius:10px;text-decoration:none;text-align:center;font-weight:bold;">🟢 OKX Wallet</a>
+                    <button onclick="this.closest('div').remove()" style="background:#666;color:#fff;padding:15px;border-radius:10px;border:none;cursor:pointer;margin-top:10px;">关闭</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', walletList);
+}
+
+function disconnectWallet() {
+    userAddress = '';
+    connected = false;
+    document.querySelector('.connect-btn').textContent = '连接钱包';
+    document.querySelector('.wallet-amount').textContent = '0 USDT';
 }
 
 // 获取钱包余额
