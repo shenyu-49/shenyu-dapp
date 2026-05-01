@@ -38,14 +38,19 @@ function switchSection(section) {
     // 显示当前section
     document.getElementById(`${section}-section`).classList.add('active');
     
-    // 更新底部导航
-    const navButtons = document.querySelectorAll('.nav-btn');
-    navButtons.forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // 激活当前按钮
-    document.querySelector(`.nav-btn[onclick="switchSection('${section}')"]`).classList.add('active');
+    // 更新底部导航 - 使用更可靠的方式
+    const sectionIndex = { home: 0, predict: 1, ai: 2, my: 3 };
+    const index = sectionIndex[section];
+    if (index !== undefined) {
+        const navButtons = document.querySelectorAll('.nav-btn');
+        navButtons.forEach((btn, i) => {
+            if (i === index) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
 }
 
 // 板块选择
