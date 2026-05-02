@@ -240,10 +240,10 @@ function submitBet() {
     }
     
     // 资金分配
-    const platformFee = amount * 0.03;    // 3% 平台费
-    const welfarePool = amount * 0.05;      // 5% 福利池
-    const nodePool = amount * 0.02;         // 2% 节点池
-    const prizePool = amount * 0.90;       // 90% 奖金池
+    const platformFee = amount * 0.05;    // 5% 平台费
+    const welfarePool = amount * 0.15;      // 15% 福利池
+    const nodePool = amount * 0.01;         // 1% 节点池
+    const prizePool = amount * 0.79;       // 79% 奖金池
     
     poolData.welfarePool += welfarePool;
     poolData.nodePool += nodePool;

@@ -1,255 +1,339 @@
-// ============ 神预DApp - 带模拟数据的实时价格 ============
-
-let currentPage = 'home';
-let currentSymbol = 'btcusdt';
-let currentCategory = 'crypto';
-let klineSocket = null;
-let priceSocket = null;
-
-document.addEventListener('DOMContentLoaded', () => {
-    // 立即显示模拟数据
-    showMockData();
-    tryConnectRealTime();
-    
-    initNav();
-    initCategoryTabs();
-    initSymbolSelect();
-    initBet();
-    initInvite();
-    updateSymbolList();
-    
-    // 页面切换到预测时尝试连接真实数据
-    setTimeout(() => {
-        if (currentPage === 'predict') tryConnectRealTime();
-    }, 3000);
-});
-
-function showMockData() {
-    const mockData = {
-        'btcusdt': { price: 67543.21, change: 2.34, high: 68100, low: 66200 },
-        'ethusdt': { price: 3456.78, change: 1.56, high: 3510, low: 3380 },
-        'bnbusdt': { price: 567.89, change: -0.89, high: 580, low: 550 },
-        'solusdt': { price: 145.67, change: 5.23, high: 152, low: 138 },
-        'trxusdt': { price: 0.1123, change: 0.45, high: 0.115, low: 0.108 }
-    };
-    const data = mockData[currentSymbol] || mockData.btcusdt;
-    const isPositive = data.change >= 0;
-    
-    const chartEl = document.getElementById('klineChart');
-    if (chartEl) {
-        const priceEl = chartEl.querySelector('.symbol-price');
-        const changeEl = chartEl.querySelector('.symbol-change');
-        const symbolEl = chartEl.querySelector('.symbol-name');
-        
-        if (priceEl) {
-            priceEl.textContent = data.price.toLocaleString();
-            priceEl.style.color = isPositive ? '#00ff88' : '#ff4757';
-        }
-        if (changeEl) {
-            changeEl.textContent = (isPositive ? '+' : '') + data.change + '%';
-            changeEl.className = 'symbol-change ' + (isPositive ? '' : 'negative');
-            changeEl.style.background = isPositive ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 71, 87, 0.2)';
-        }
-        if (symbolEl) {
-            symbolEl.textContent = currentSymbol.toUpperCase().replace('USDT', '/USDT');
-        }
+// 神预DApp前端逻辑
+// 合约配置
+const contractConfig = {
+    testnet: {
+        ShenYu: "0xc642107B0efa9013c8B12C880C6163a7c0566c2D",
+        USDT: "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
+        operateWallet: "0x1A0a3d5fB91120185a795477ed600B9Cd3947732",
+        secretWallet: "0x9C156fd416E0368545B999a4CC2CF9444ECF4016",
+        rpcUrl: "https://data-seed-prebsc-1-s1.binance.org:8545",
+        chainId: 97
+    },
+    mainnet: {
+        ShenYu: "",
+        USDT: "0x55d398326f99059ff775485246999027b3197955",
+        operateWallet: "0x1A0a3d5fB91120185a795477ed600B9Cd3947732",
+        secretWallet: "0x9C156fd416E0368545B999a4CC2CF9444ECF4016",
+        rpcUrl: "https://bsc-dataseed.binance.org/",
+        chainId: 56
     }
+};
+
+// 全局变量
+let currentNetwork = 'testnet';
+let web3;
+let shenYuContract;
+let usdtContract;
+let userAddress = '';
+let connected = false;
+
+// 页面切换
+function switchSection(section) {
+    // 隐藏所有section
+    document.getElementById('home-section').classList.remove('active');
+    document.getElementById('predict-section').classList.remove('active');
+    document.getElementById('ai-section').classList.remove('active');
+    document.getElementById('my-section').classList.remove('active');
     
-    // 绘制K线
-    drawKlineCanvas();
+    // 显示当前section
+    document.getElementById(`${section}-section`).classList.add('active');
+    
+    // 更新底部导航 - 使用更可靠的方式
+    const sectionIndex = { home: 0, predict: 1, ai: 2, my: 3 };
+    const index = sectionIndex[section];
+    if (index !== undefined) {
+        const navButtons = document.querySelectorAll('.nav-btn');
+        navButtons.forEach((btn, i) => {
+            if (i === index) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
 }
 
-function drawKlineCanvas() {
-    const canvas = document.getElementById('klineCanvas');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const container = canvas.parentElement;
-    if (!container) return;
-    
-    const width = container.clientWidth || 300;
-    const height = container.clientHeight || 180;
-    
-    canvas.width = width;
-    canvas.height = height;
-    
-    // 清空
-    ctx.clearRect(0, 0, width, height);
-    
-    // 背景网格
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-    ctx.lineWidth = 1;
-    for (let y = 20; y < height; y += 30) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-    }
-    
-    // 模拟K线走势
-    const centerY = height * 0.5;
-    ctx.beginPath();
-    ctx.moveTo(0, centerY);
-    
-    let y = centerY;
-    for (let x = 0; x < width; x += 4) {
-        y += (Math.random() - 0.48) * 8;
-        y = Math.max(30, Math.min(height - 30, y));
-        ctx.lineTo(x, y);
-    }
-    
-    ctx.strokeStyle = '#00d4ff';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    
-    // 渐变填充
-    ctx.lineTo(width, height);
-    ctx.lineTo(0, height);
-    ctx.closePath();
-    const gradient = ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, 'rgba(0, 212, 255, 0.3)');
-    gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
-    ctx.fillStyle = gradient;
-    ctx.fill();
+// 板块选择
+function selectCategory(category) {
+    const buttons = document.querySelectorAll('.category-btn');
+    buttons.forEach(btn => {
+        btn.setAttribute('data-active', btn.textContent.includes(category));
+        btn.style.backgroundColor = btn.getAttribute('data-active') === 'true' ? '#667eea' : 'rgba(0,0,0,0.5)';
+    });
 }
 
-// 尝试连接真实数据
-function tryConnectRealTime() {
+// 币种选择
+function selectCoin(coin) {
+    const buttons = document.querySelectorAll('.coin-btn');
+    buttons.forEach(btn => {
+        btn.setAttribute('data-active', btn.textContent === coin);
+        btn.style.backgroundColor = btn.getAttribute('data-active') === 'true' ? '#667eea' : 'rgba(0,0,0,0.5)';
+    });
+    
+    // 更新K线图标题
+    document.querySelector('.coin-info h3').textContent = `${coin}/USDT`;
+    
+    // 获取实时价格数据
+    updatePriceInfo(coin);
+}
+
+// 时间周期切换
+function setPeriod(period) {
+    const buttons = document.querySelectorAll('.period-btn');
+    buttons.forEach(btn => {
+        btn.setAttribute('data-active', btn.textContent.includes(period));
+        btn.style.backgroundColor = btn.getAttribute('data-active') === 'true' ? '#667eea' : 'rgba(255,255,255,0.1)';
+    });
+    
+    // 更新K线图
+    updateChart(period);
+}
+
+// 投注类型选择
+function selectBetType(type) {
+    const yesBtn = document.querySelector('.bet-btn-yes');
+    const noBtn = document.querySelector('.bet-btn-no');
+    
+    if (type === 'YES') {
+        yesBtn.style.backgroundColor = '#00c853';
+        yesBtn.style.color = '#fff';
+        noBtn.style.backgroundColor = 'rgba(255,255,255,0.1)';
+        noBtn.style.color = 'rgba(255,255,255,0.8)';
+    } else {
+        noBtn.style.backgroundColor = '#ff5252';
+        noBtn.style.color = '#fff';
+        yesBtn.style.backgroundColor = 'rgba(255,255,255,0.1)';
+        yesBtn.style.color = 'rgba(255,255,255,0.8)';
+    }
+}
+
+// 提交投注
+function submitBet() {
+    const amount = document.querySelector('.bet-input').value;
+    const type = document.querySelector('.bet-btn-yes').style.backgroundColor === '#00c853' ? 'YES' : 'NO';
+    
+    if (!connected) {
+        alert('请先连接钱包！');
+        return;
+    }
+    
+    if (!amount || amount < 10) {
+        alert('请输入大于等于10 USDT的金额！');
+        return;
+    }
+    
+    // 模拟投注逻辑
+    alert(`已提交投注：${amount} USDT，类型：${type}`);
+    
+    // 添加到个人记录
+    addPersonalHistory('BTC/USDT', amount, type);
+}
+
+// 连接钱包
+async function connectWallet() {
+    if (!window.ethereum) {
+        alert('请安装MetaMask钱包！');
+        return;
+    }
+    
     try {
-        priceSocket = new WebSocket(`wss://stream.binance.com:9443/ws/${currentSymbol}@ticker`);
+        // 请求连接账户
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        userAddress = accounts[0];
+        connected = true;
         
-        priceSocket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.c) {
-                const price = parseFloat(data.c).toFixed(2);
-                const change = parseFloat(data.P).toFixed(2);
-                updatePriceUI(price, change);
-            }
-        };
+        // 更新UI
+        document.querySelector('.connect-btn').textContent = '已连接钱包';
+        document.querySelector('.wallet-amount').textContent = '获取余额...';
         
-        priceSocket.onerror = () => console.log('WebSocket error');
-    } catch (e) {
-        console.log('WebSocket连接失败，使用模拟数据');
+        // 获取余额
+        fetchWalletBalance();
+        
+        // 显示成功消息
+        alert('钱包连接成功！');
+    } catch (error) {
+        alert('钱包连接失败：' + error.message);
     }
 }
 
-function updatePriceUI(price, change) {
-    const isPositive = parseFloat(change) >= 0;
-    const chartEl = document.getElementById('klineChart');
-    if (chartEl) {
-        const priceEl = chartEl.querySelector('.symbol-price');
-        const changeEl = chartEl.querySelector('.symbol-change');
+// 获取钱包余额
+async function fetchWalletBalance() {
+    try {
+        // 获取USDT余额
+        const config = contractConfig[currentNetwork];
+        const balance = await getUSDTBalance(userAddress);
         
-        if (priceEl) {
-            priceEl.textContent = parseFloat(price).toLocaleString();
-            priceEl.style.color = isPositive ? '#00ff88' : '#ff4757';
-        }
-        if (changeEl) {
-            changeEl.textContent = (isPositive ? '+' : '') + change + '%';
-            changeEl.className = 'symbol-change ' + (isPositive ? '' : 'negative');
-        }
+        document.querySelector('.wallet-amount').textContent = `${balance} USDT`;
+    } catch (error) {
+        console.error('获取余额失败:', error);
+        document.querySelector('.wallet-amount').textContent = '0 USDT';
     }
 }
 
-// ============ 导航 ============
-function initNav() {
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const page = btn.dataset.page;
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('page-' + page).classList.add('active');
-            btn.classList.add('active');
-            currentPage = page;
-            
-            if (page === 'predict') {
-                showMockData();
-    tryConnectRealTime();
-                setTimeout(() => tryConnectRealTime(), 1000);
-            }
-        });
-    });
+// 刷新余额
+function refreshWallet() {
+    if (!connected) {
+        alert('请先连接钱包！');
+        return;
+    }
+    
+    fetchWalletBalance();
 }
 
-// ============ 板块选择 ============
-function initCategoryTabs() {
-    document.querySelectorAll('.category-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            currentCategory = tab.dataset.category;
-            updateSymbolList();
-        });
-    });
-}
-
-function initSymbolSelect() {
-    document.querySelectorAll('.symbol-item').forEach(item => {
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.symbol-item').forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            currentSymbol = item.dataset.symbol;
-            showMockData();
-    tryConnectRealTime();
-        });
-    });
-}
-
-function updateSymbolList() {
-    const symbols = {
-        crypto: ['BTC', 'ETH', 'BNB', 'SOL', 'TRX', 'ADA', 'DOT', 'AVAX'],
-        hot: ['BTC生态', 'DeFi', 'NFT', 'RWA'],
-        sports: ['NBA', '世界杯', '网球', '超级碗']
+// 更新价格信息
+function updatePriceInfo(coin) {
+    // 模拟实时价格数据
+    const prices = {
+        BTC: { price: '78,432.18', change: '+2.34%' },
+        ETH: { price: '4,356.42', change: '-1.21%' },
+        BNB: { price: '587.31', change: '+0.87%' },
+        SOL: { price: '167.89', change: '+3.52%' },
+        TRX: { price: '0.1257', change: '-0.45%' },
+        ADA: { price: '0.678', change: '+1.23%' },
+        DOT: { price: '8.45', change: '-0.78%' },
+        MATIC: { price: '1.23', change: '+0.56%' },
+        LINK: { price: '17.89', change: '+2.15%' },
+        XRP: { price: '0.67', change: '-0.32%' }
     };
     
-    const list = document.getElementById('symbolList');
-    if (list) {
-        const syms = symbols[currentCategory] || symbols.crypto;
-        list.innerHTML = syms.map((s, i) => {
-            const key = currentCategory === 'crypto' ? syms[i].toLowerCase() + 'usdt' : s.toLowerCase();
-            return `<div class="symbol-item ${i === 0 ? 'active' : ''}" data-symbol="${key}">${s}</div>`;
-        }).join('');
-        
-        list.querySelectorAll('.symbol-item').forEach(item => {
-            item.addEventListener('click', () => {
-                list.querySelectorAll('.symbol-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                currentSymbol = item.dataset.symbol;
-                showMockData();
-    tryConnectRealTime();
-            });
-        });
-    }
+    const priceInfo = prices[coin] || { price: '78,432.18', change: '+2.34%' };
+    document.querySelector('.current-price').textContent = `$${priceInfo.price}`;
+    document.querySelector('.price-change').textContent = priceInfo.change;
 }
 
-// ============ 投注 ============
-function initBet() {
-    const amountInput = document.getElementById('betAmount');
-    document.querySelectorAll('.btn-bet').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const amount = amountInput?.value;
-            if (!amount || amount < 10) {
-                showToast('最低投注10 USDT');
-                return;
-            }
-            showToast(`已提交 ${btn.dataset.side} 投注 ${amount} USDT`);
-        });
+// 更新K线图
+function updateChart(period) {
+    const chartContainer = document.querySelector('.chart-placeholder');
+    chartContainer.textContent = `K线图 - ${period} 周期`;
+}
+
+// 添加个人参与记录
+function addPersonalHistory(name, amount, type) {
+    const personalHistoryList = document.querySelector('.personal-history-list');
+    
+    const now = new Date();
+    const timeStr = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
+    
+    const historyItem = document.createElement('div');
+    historyItem.className = 'personal-history-item';
+    
+    historyItem.innerHTML = `
+        <div class="personal-history-info">
+            <div class="personal-history-name">${name}</div>
+            <div class="personal-history-result pending">PENDING</div>
+        </div>
+        <div class="personal-history-details">
+            <div class="personal-history-time">${timeStr}</div>
+            <div class="personal-history-amount">${amount} USDT</div>
+        </div>
+    `;
+    
+    personalHistoryList.appendChild(historyItem);
+}
+
+// 购买套餐
+function buyPackage(type) {
+    if (!connected) {
+        alert('请先连接钱包！');
+        return;
+    }
+    
+    const prices = {
+        basic: 99,
+        pro: 299,
+        premium: 999
+    };
+    
+    alert(`购买${type}套餐：${prices[type]} USDT`);
+}
+
+// 保存AI设置
+function saveAiSettings() {
+    const target = document.getElementById('ai-target').value;
+    const coins = document.getElementById('ai-coins').value;
+    const maxInvest = document.getElementById('ai-max-invest').value;
+    const maxLoss = document.getElementById('ai-max-loss').value;
+    const searchFreq = document.getElementById('ai-search-freq').value;
+    
+    alert(`AI设置已保存：\n预测目标：${target}\n币种选择：${coins}\n投资上限：${maxInvest} USDT\n亏损上限：${maxLoss} USDT\n搜索频率：${searchFreq}`);
+}
+
+// 查看节点记录
+function viewNodeRecords() {
+    alert('节点记录查看');
+}
+
+// 激活节点
+function activateNode() {
+    if (!connected) {
+        alert('请先连接钱包！');
+        return;
+    }
+    
+    alert('激活节点功能');
+}
+
+// 复制邀请链接
+function copyInviteLink() {
+    const link = document.querySelector('.invite-link').textContent;
+    
+    // 模拟复制
+    navigator.clipboard.writeText(link).then(() => {
+        alert('链接已复制到剪贴板');
+    }).catch(() => {
+        // 备用方法
+        const textArea = document.createElement('textarea');
+        textArea.value = link;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('链接已复制');
     });
 }
 
-// ============ 邀请 ============
-function initInvite() {
-    document.getElementById('copyLinkBtn')?.addEventListener('click', () => {
-        showToast('链接已复制');
-    });
+// 模拟获取USDT余额
+async function getUSDTBalance(address) {
+    return Math.floor(Math.random() * 1000);
 }
 
-// ============ Toast ============
-function showToast(msg) {
-    const toast = document.getElementById('toast');
-    if (toast) {
-        toast.textContent = msg;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2000);
+// 初始化
+function initApp() {
+    // 设置默认选择
+    selectCategory('crypto');
+    selectCoin('BTC');
+    setPeriod('1h');
+    selectBetType('YES');
+    
+    // 检查是否已连接钱包
+    if (window.ethereum && window.ethereum.selectedAddress) {
+        userAddress = window.ethereum.selectedAddress;
+        connected = true;
+        document.querySelector('.connect-btn').textContent = '已连接钱包';
+        fetchWalletBalance();
     }
+}
+
+// 页面加载完成后初始化
+window.addEventListener('load', initApp);
+
+// MetaMask检测
+if (window.ethereum) {
+    window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) {
+            userAddress = '';
+            connected = false;
+            document.querySelector('.connect-btn').textContent = '连接钱包';
+            document.querySelector('.wallet-amount').textContent = '0 USDT';
+        } else {
+            userAddress = accounts[0];
+            connected = true;
+            document.querySelector('.connect-btn').textContent = '已连接钱包';
+            fetchWalletBalance();
+        }
+    });
+    
+    window.ethereum.on('chainChanged', () => {
+        fetchWalletBalance();
+    });
 }
