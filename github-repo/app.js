@@ -126,14 +126,43 @@ function submitBet() {
 
 // 连接钱包
 async function connectWallet() {
-    if (!window.ethereum) {
-        alert('请安装MetaMask钱包！');
+    // 检测钱包提供商
+    let walletProvider = null;
+    
+    // 检查MetaMask
+    if (window.ethereum) {
+        walletProvider = window.ethereum;
+    }
+    // 检查币安钱包（Binance Wallet）
+    else if (window.BinanceChain) {
+        walletProvider = window.BinanceChain;
+    }
+    // 检查TP钱包（TokenPocket）
+    else if (window.tp) {
+        walletProvider = window.tp;
+    }
+    // 检查Trust Wallet
+    else if (window.trustwallet) {
+        walletProvider = window.trustwallet;
+    }
+    // 检查Coinbase Wallet
+    else if (window.coinbaseWalletExtension) {
+        walletProvider = window.coinbaseWalletExtension;
+    }
+    // 检查OKX Wallet
+    else if (window.okxwallet) {
+        walletProvider = window.okxwallet;
+    }
+    
+    if (!walletProvider) {
+        // 如果没有钱包，显示选择界面
+        showWalletSelector();
         return;
     }
     
     try {
         // 请求连接账户
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const accounts = await walletProvider.request({ method: 'eth_requestAccounts' });
         userAddress = accounts[0];
         connected = true;
         
@@ -149,6 +178,50 @@ async function connectWallet() {
     } catch (error) {
         alert('钱包连接失败：' + error.message);
     }
+}
+
+// 显示钱包选择界面
+function showWalletSelector() {
+    const walletSelector = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%;">
+                <h2>选择钱包</h2>
+                <p>您需要安装钱包插件来连接区块链网络</p>
+                <div style="margin-top: 20px;">
+                    <button onclick="installWallet('MetaMask')" style="background: #f6851b; color: white; padding: 15px; margin: 10px; border-radius: 5px; cursor: pointer;">安装 MetaMask</button>
+                    <button onclick="installWallet('Binance')" style="background: #f0b90b; color: white; padding: 15px; margin: 10px; border-radius: 5px; cursor: pointer;">安装 Binance Wallet</button>
+                    <button onclick="installWallet('TokenPocket')" style="background: #3cb371; color: white; padding: 15px; margin: 10px; border-radius: 5px; cursor: pointer;">安装 TP Wallet</button>
+                    <button onclick="installWallet('TrustWallet')" style="background: #667eea; color: white; padding: 15px; margin: 10px; border-radius: 5px; cursor: pointer;">安装 Trust Wallet</button>
+                    <button onclick="installWallet('Coinbase')" style="background: #0052ff; color: white; padding: 15px; margin: 10px; border-radius: 5px; cursor: pointer;">安装 Coinbase Wallet</button>
+                    <button onclick="installWallet('OKX')" style="background: #00b8ff; color: white; padding: 15px; margin: 10px; border-radius: 5px; cursor: pointer;">安装 OKX Wallet</button>
+                </div>
+                <button onclick="hideWalletSelector()" style="background: #ff5252; color: white; padding: 10px; margin-top: 20px; border-radius: 5px; cursor: pointer;">关闭</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', walletSelector);
+}
+
+// 隐藏钱包选择界面
+function hideWalletSelector() {
+    const selector = document.querySelector('[style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;"]');
+    if (selector) selector.remove();
+}
+
+// 引导用户安装钱包
+function installWallet(walletType) {
+    const walletUrls = {
+        'MetaMask': 'https://metamask.io/download/',
+        'Binance': 'https://www.binance.org/wallet',
+        'TokenPocket': 'https://www.tokenpocket.pro/',
+    'TrustWallet': 'https://trustwallet.com/download/',
+        'Coinbase': 'https://www.coinbase.com/wallet',
+        'OKX': 'https://www.okx.com/web3'
+    };
+    
+    window.open(walletUrls[walletType], '_blank');
+    alert(`请安装${walletType}钱包，然后重新刷新页面连接`);
 }
 
 // 获取钱包余额
@@ -301,8 +374,23 @@ function initApp() {
     selectBetType('YES');
     
     // 检查是否已连接钱包
-    if (window.ethereum && window.ethereum.selectedAddress) {
-        userAddress = window.ethereum.selectedAddress;
+    let walletProvider = null;
+    if (window.ethereum) {
+        walletProvider = window.ethereum;
+    } else if (window.BinanceChain) {
+        walletProvider = window.BinanceChain;
+    } else if (window.tp) {
+        walletProvider = window.tp;
+    } else if (window.trustwallet) {
+        walletProvider = window.trustwallet;
+    } else if (window.coinbaseWalletExtension) {
+        walletProvider = window.coinbaseWalletExtension;
+    } else if (window.okxwallet) {
+        walletProvider = window.okxwallet;
+    }
+    
+    if (walletProvider && walletProvider.selectedAddress) {
+        userAddress = walletProvider.selectedAddress;
         connected = true;
         document.querySelector('.connect-btn').textContent = '已连接钱包';
         fetchWalletBalance();
@@ -312,9 +400,24 @@ function initApp() {
 // 页面加载完成后初始化
 window.addEventListener('load', initApp);
 
-// MetaMask检测
+// 钱包检测
+let walletProvider = null;
 if (window.ethereum) {
-    window.ethereum.on('accountsChanged', (accounts) => {
+    walletProvider = window.ethereum;
+} else if (window.BinanceChain) {
+    walletProvider = window.BinanceChain;
+} else if (window.tp) {
+    walletProvider = window.tp;
+} else if (window.trustwallet) {
+    walletProvider = window.trustwallet;
+} else if (window.coinbaseWalletExtension) {
+    walletProvider = window.coinbaseWalletExtension;
+} else if (window.okxwallet) {
+    walletProvider = window.okxwallet;
+}
+
+if (walletProvider) {
+    walletProvider.on('accountsChanged', (accounts) => {
         if (accounts.length === 0) {
             userAddress = '';
             connected = false;
@@ -328,7 +431,7 @@ if (window.ethereum) {
         }
     });
     
-    window.ethereum.on('chainChanged', () => {
+    walletProvider.on('chainChanged', () => {
         fetchWalletBalance();
     });
 }
